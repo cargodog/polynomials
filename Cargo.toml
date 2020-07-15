@@ -1,0 +1,10 @@
+[package]
+name = "polynomials"
+version = "0.1.0"
+authors = ["cargodog <cargodog@protonmail.com>"]
+edition = "2018"
+description = "Tools to perform polynomial arithmetic and evaluation."
+license-file = "LICENSE"
+repository = "https://github.com/cargodog/polynomials"
+
+[dependencies]
