@@ -113,12 +113,17 @@ where
     T: Add<Output = T> + Copy,
 {
     fn add_assign(&mut self, rhs: Self) {
-        if self.0.len() < rhs.0.len() {
-            for i in self.0.len()..rhs.0.len() {
+        let min_len = if self.0.len() < rhs.0.len() {
+            self.0.len()
+        } else {
+            rhs.0.len()
+        };
+        if self.0.len() < min_len {
+            for i in self.0.len()..min_len {
                 self.push(rhs[i]);
             }
         }
-        for i in 0..self.0.len() {
+        for i in 0..min_len {
             self[i] = self[i] + rhs[i];
         }
     }
@@ -142,12 +147,17 @@ where
     T: Sub<Output = T> + Neg<Output = T> + Copy,
 {
     fn sub_assign(&mut self, rhs: Self) {
-        if self.0.len() < rhs.0.len() {
-            for i in self.0.len()..rhs.0.len() {
+        let min_len = if self.0.len() < rhs.0.len() {
+            self.0.len()
+        } else {
+            rhs.0.len()
+        };
+        if self.0.len() < min_len {
+            for i in self.0.len()..min_len {
                 self.push(-rhs[i]);
             }
         }
-        for i in 0..self.0.len() {
+        for i in 0..min_len {
             self[i] = self[i] - rhs[i];
         }
     }
@@ -305,7 +315,7 @@ mod tests {
     fn add() {
         let a = Polynomial::from(vec![-200, 6, 2, 3, 53, 0, 0]); // Higher order 0s should be ignored
         let b = Polynomial::from(vec![-1, -6, -7, 0, 1000]);
-        let c = Polynomial::from(vec![-201, 0, -5, 1053]);
+        let c = Polynomial::from(vec![-201, 0, -5, 3, 1053]);
         assert_eq!(a.clone() + b.clone(), c);
         assert_eq!(b + a, c);
     }
@@ -314,7 +324,7 @@ mod tests {
     fn add_assign() {
         let mut a = Polynomial::from(vec![-200, 6, 2, 3, 53, 0, 0]); // Higher order 0s should be ignored
         let b = Polynomial::from(vec![-1, -6, -7, 0, 1000]);
-        let c = Polynomial::from(vec![-201, 0, -5, 1053]);
+        let c = Polynomial::from(vec![-201, 0, -5, 3, 1053]);
         a += b;
         assert_eq!(a, c);
     }
