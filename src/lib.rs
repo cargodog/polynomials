@@ -290,3 +290,133 @@ where
 }
 impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 
+#[cfg(test)]
+mod tests {
+    use crate::Polynomial;
+
+    #[test]
+    fn degree() {
+        assert_eq!(Polynomial::from(vec![8, 6, 2, 3]).degree(), 3);
+        assert_eq!(Polynomial::from(vec![0, 0, 6, 2, 3]).degree(), 4);
+        assert_eq!(Polynomial::from(vec![0, 0]).degree(), 0);
+        assert_eq!(Polynomial::from(vec![0, 99]).degree(), 1);
+        assert_eq!(Polynomial::from(vec![99, 0]).degree(), 0);
+    }
+
+    #[test]
+    fn eval() {
+        assert_eq!(Polynomial::from(vec![1, 1, 1, 1]).eval(1).unwrap(), 4);
+        assert_eq!(Polynomial::from(vec![-2, -2, -2, -2]).eval(1).unwrap(), -8);
+        assert_eq!(Polynomial::from(vec![100, 0, 0, 0]).eval(9).unwrap(), 100);
+        assert_eq!(Polynomial::from(vec![0, 1, 0, 0]).eval(9).unwrap(), 9);
+        assert_eq!(Polynomial::from(vec![0, 0, -1, 0]).eval(9).unwrap(), -81);
+        assert_eq!(Polynomial::from(vec![0, -9, 0, 40]).eval(2).unwrap(), 302);
+    }
+
+    #[test]
+    fn iter() {
+        assert_eq!(
+            Polynomial::from(vec![0, -9, 0, 40]).iter().sum::<isize>(),
+            31
+        );
+    }
+
+    #[test]
+    fn add() {
+        let a = Polynomial::from(vec![-200, 6, 2, 3, 53, 0, 0]); // Higher order 0s should be ignored
+        let b = Polynomial::from(vec![-1, -6, -7, 0, 1000]);
+        let c = Polynomial::from(vec![-201, 0, -5, 1053]);
+        assert_eq!(a.clone() + b.clone(), c);
+        assert_eq!(b + a, c);
+    }
+
+    #[test]
+    fn add_assign() {
+        let mut a = Polynomial::from(vec![-200, 6, 2, 3, 53, 0, 0]); // Higher order 0s should be ignored
+        let b = Polynomial::from(vec![-1, -6, -7, 0, 1000]);
+        let c = Polynomial::from(vec![-201, 0, -5, 1053]);
+        a += b;
+        assert_eq!(a, c);
+    }
+
+    #[test]
+    fn sub() {
+        let a = Polynomial::from(vec![-200, 6, 2, 3, 53, 0, 0]); // Higher order 0s should be ignored
+        let b = Polynomial::from(vec![-1, -6, -7, 0, 1000]);
+        let c = Polynomial::from(vec![-199, 12, 9, 3, -947]);
+        let d = Polynomial::from(vec![199, -12, -9, -3, 947]);
+        assert_eq!(a.clone() - b.clone(), c);
+        assert_eq!(b - a, d);
+    }
+
+    #[test]
+    fn sub_assign() {
+        let mut a = Polynomial::from(vec![-200, 6, 2, 3, 53, 0, 0]); // Higher order 0s should be ignored
+        let b = Polynomial::from(vec![-1, -6, -7, 0, 1000]);
+        let c = Polynomial::from(vec![-199, 12, 9, 3, -947]);
+        a -= b;
+        assert_eq!(a, c);
+    }
+
+    #[test]
+    fn mul() {
+        let a = Polynomial::from(vec![1, 0, 0]); // Higher order 0s should be ignored
+        let b = Polynomial::from(vec![0]);
+        let c = Polynomial::from(vec![0]);
+        assert_eq!(a * b, c);
+
+        let a = Polynomial::from(vec![-7]);
+        let b = Polynomial::from(vec![4]);
+        let c = Polynomial::from(vec![-28]);
+        assert_eq!(a * b, c);
+
+        let a = Polynomial::from(vec![0, 1]);
+        let b = Polynomial::from(vec![4]);
+        let c = Polynomial::from(vec![0, 4]);
+        assert_eq!(a * b, c);
+
+        let a = Polynomial::from(vec![0, -1]);
+        let b = Polynomial::from(vec![0, 1]);
+        let c = Polynomial::from(vec![0, 0, -1]);
+        assert_eq!(a * b, c);
+    }
+
+    #[test]
+    fn mul_assign() {
+        let mut a = Polynomial::from(vec![1, 0, 0]); // Higher order 0s should be ignored
+        let b = Polynomial::from(vec![0]);
+        let c = Polynomial::from(vec![0]);
+        a *= b;
+        assert_eq!(a, c);
+
+        let mut a = Polynomial::from(vec![-7]);
+        let b = Polynomial::from(vec![4]);
+        let c = Polynomial::from(vec![-28]);
+        a *= b;
+        assert_eq!(a, c);
+
+        let mut a = Polynomial::from(vec![0, 1]);
+        let b = Polynomial::from(vec![4]);
+        let c = Polynomial::from(vec![0, 4]);
+        a *= b;
+        assert_eq!(a, c);
+
+        let mut a = Polynomial::from(vec![0, -1]);
+        let b = Polynomial::from(vec![0, 1]);
+        let c = Polynomial::from(vec![0, 0, -1]);
+        a *= b;
+        assert_eq!(a, c);
+    }
+
+    #[test]
+    fn div_by_value() {
+        let a = Polynomial::from(vec![2, 4, 6]);
+        let b = Polynomial::from(vec![1, 2, 3]);
+        assert_eq!(a / 2, b);
+
+        let mut a = Polynomial::from(vec![2, 4, 6]);
+        let b = Polynomial::from(vec![1, 2, 3]);
+        a /= 2;
+        assert_eq!(a, b);
+    }
+}
