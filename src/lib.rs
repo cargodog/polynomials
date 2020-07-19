@@ -1,3 +1,4 @@
+use core::cmp::PartialEq;
 use core::convert::From;
 use core::ops::Neg;
 use core::ops::{Add, AddAssign};
@@ -269,4 +270,23 @@ where
         }
     }
 }
+
+impl<T> PartialEq for Polynomial<T>
+where
+    T: Sub<T, Output = T> + Eq + Copy,
+{
+    fn eq(&self, other: &Self) -> bool {
+        let degree = self.degree();
+        if degree != other.degree() {
+            return false;
+        }
+        for i in 0..degree {
+            if self[i] != other[i] {
+                return false;
+            }
+        }
+        true
+    }
+}
+impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 
