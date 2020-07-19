@@ -26,6 +26,22 @@ impl<T> Polynomial<T> {
         self.0.pop()
     }
 
+    pub fn degree(&self) -> usize
+    where
+        T: Sub<T, Output = T> + Eq + Copy,
+    {
+        let mut deg = self.0.len();
+        for _ in 0..self.0.len() {
+            deg -= 1;
+
+            // Generic test if non-zero
+            if self[deg] != self[deg] - self[deg] {
+                break;
+            }
+        }
+        deg
+    }
+
     pub fn eval<X>(&self, x: X) -> Option<T>
     where
         T: AddAssign + Copy,
@@ -253,3 +269,4 @@ where
         }
     }
 }
+
