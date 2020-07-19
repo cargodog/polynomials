@@ -185,28 +185,8 @@ where
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        let mut new = Self::new();
-
-        // One of the vectors must be non-empty
-        if self.0.len() > 0 || rhs.0.len() > 0 {
-            // Since core::num does not provide the `Zero()` trait
-            // this hack lets us calculate zero from any generic
-            let zero = if self.0.len() > 0 {
-                self[0] - self[0]
-            } else {
-                rhs[0] - rhs[0]
-            };
-
-            // New vector with size M + N - 1
-            new.0.resize(self.0.len() + rhs.0.len() - 1, zero);
-
-            // Calculate product
-            for i in 0..self.0.len() {
-                for j in 0..rhs.0.len() {
-                    new[i + j] += self[i] * rhs[j];
-                }
-            }
-        }
+        let mut new = self.clone();
+        new *= rhs;
         new
     }
 }
