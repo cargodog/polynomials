@@ -399,6 +399,18 @@ mod tests {
     }
 
     #[test]
+    fn mul_by_value() {
+        let a = Polynomial::from(vec![1, 2, 3]);
+        let b = Polynomial::from(vec![2, 4, 6]);
+        assert_eq!(a * 2, b);
+
+        let mut a = Polynomial::from(vec![1, 2, 3]);
+        let b = Polynomial::from(vec![2, 4, 6]);
+        a *= 2;
+        assert_eq!(a, b);
+    }
+
+    #[test]
     fn div_by_value() {
         let a = Polynomial::from(vec![2, 4, 6]);
         let b = Polynomial::from(vec![1, 2, 3]);
