@@ -1,6 +1,6 @@
 [package]
 name = "polynomials"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["cargodog <cargodog@protonmail.com>"]
 edition = "2018"
 description = "Tools to perform polynomial arithmetic and evaluation."
