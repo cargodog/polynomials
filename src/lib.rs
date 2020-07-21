@@ -10,26 +10,71 @@ use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
 
-#[cfg_attr(test, macro_use)] 
+#[cfg_attr(test, macro_use)]
 extern crate alloc;
-use alloc::vec::{Vec, IntoIter};
+use alloc::vec::{IntoIter, Vec};
 
+/// A [`Polynomial`] is just a vector of coefficients. Each coefficient corresponds to a power of
+/// `x` in increasing order. For example, the following polynomial is equal to 4x^2 + 3x - 9.
+///
+/// ```
+/// # #[macro_use] extern crate polynomials;
+/// # fn main() {
+/// // Construct polynomial 4x^2 + 3x - 9
+/// let mut a = poly![-9, 3, 4];
+/// assert_eq!(a[0], -9);
+/// assert_eq!(a[1], 3);
+/// assert_eq!(a[2], 4);
+/// # }
+/// ```
 #[derive(Debug, Clone)]
 pub struct Polynomial<T>(Vec<T>);
 
 impl<T> Polynomial<T> {
+    /// Create a new, empty, instance of a polynomial.
     pub fn new() -> Polynomial<T> {
         Polynomial(Vec::<T>::new())
     }
 
+    /// Adds a new coefficient to the [`Polynomial`], in the next highest order position.
+    ///
+    /// ```
+    /// # #[macro_use] extern crate polynomials;
+    /// # fn main() {
+    /// let mut a = poly![-8, 2, 4];
+    /// a.push(7);
+    /// assert_eq!(a, poly![-8, 2, 4, 7]);
+    /// # }
+    /// ```
     pub fn push(&mut self, value: T) {
         self.0.push(value);
     }
 
+    /// Removes the highest order coefficient from the [`Polynomial`].
+    ///
+    /// ```
+    /// # #[macro_use] extern crate polynomials;
+    /// # fn main() {
+    /// let mut a = poly![-8, 2, 4];
+    /// assert_eq!(a.pop().unwrap(), 4);
+    /// assert_eq!(a, poly![-8, 2]);
+    /// # }
+    /// ```
     pub fn pop(&mut self) -> Option<T> {
         self.0.pop()
     }
 
+    /// Calculates the degree of a [`Polynomial`].
+    ///
+    /// The following polynomial is of degree 2: (4x^2 + 2x - 8)
+    ///
+    /// ```
+    /// # #[macro_use] extern crate polynomials;
+    /// # fn main() {
+    /// let a = poly![-8, 2, 4];
+    /// assert_eq!(a.degree(), 2);
+    /// # }
+    /// ```
     pub fn degree(&self) -> usize
     where
         T: Sub<T, Output = T> + Eq + Copy,
@@ -46,6 +91,17 @@ impl<T> Polynomial<T> {
         deg
     }
 
+    /// Evaluate a [`Polynomial`] for some value `x`.
+    ///
+    /// The following example evaluates the polynomial (4x^2 + 2x - 8) for x = 3.
+    ///
+    /// ```
+    /// # #[macro_use] extern crate polynomials;
+    /// # fn main() {
+    /// let a = poly![-8, 2, 4];
+    /// assert_eq!(a.eval(3).unwrap(), 34);
+    /// # }
+    /// ```
     pub fn eval<X>(&self, x: X) -> Option<T>
     where
         T: AddAssign + Copy,
@@ -99,6 +155,19 @@ impl<T, I: SliceIndex<[T]>> IndexMut<I> for Polynomial<T> {
     }
 }
 
+/// Add two [`Polynomial`]s.
+///
+/// The following example adds two polynomials:
+/// (4x^2 + 2x - 8) + (x + 1) = (4x^2 + 3x - 7)
+///
+/// ```
+/// # #[macro_use] extern crate polynomials;
+/// # fn main() {
+/// let a = poly![-8, 2, 4];
+/// let b = poly![1, 1];
+/// assert_eq!(a + b, poly![-7, 3, 4]);
+/// # }
+/// ```
 impl<T: Add<Output = T>> Add for Polynomial<T>
 where
     T: Add + Copy + Clone,
@@ -132,6 +201,19 @@ where
     }
 }
 
+/// Subtract two [`Polynomial`]s.
+///
+/// The following example subtracts two polynomials:
+/// (4x^2 + 2x - 8) - (x + 1) = (4x^2 + x - 9)
+///
+/// ```
+/// # #[macro_use] extern crate polynomials;
+/// # fn main() {
+/// let a = poly![-8, 2, 4];
+/// let b = poly![1, 1];
+/// assert_eq!(a - b, poly![-9, 1, 4]);
+/// # }
+/// ```
 impl<T: Sub<Output = T>> Sub for Polynomial<T>
 where
     T: Sub + Neg<Output = T> + Copy + Clone,
@@ -166,6 +248,19 @@ where
     }
 }
 
+/// Multiply two [`Polynomial`]s.
+///
+/// The following example multiplies two polynomials:
+/// (4x^2 + 2x - 8) * (x + 1) = (4x^3 + 6x^2 - 6x - 8)
+///
+/// ```
+/// # #[macro_use] extern crate polynomials;
+/// # fn main() {
+/// let a = poly![-8, 2, 4];
+/// let b = poly![1, 1];
+/// assert_eq!(a * b, poly![-8, -6, 6, 4]);
+/// # }
+/// ```
 impl<T> Mul<T> for Polynomial<T>
 where
     T: MulAssign + Copy,
@@ -190,6 +285,17 @@ where
     }
 }
 
+/// Multiply a [`Polynomial`] by some value.
+///
+/// The following example multiplies a polynomial (4x^2 + 2x - 8) by 2:
+///
+/// ```
+/// # #[macro_use] extern crate polynomials;
+/// # fn main() {
+/// let p = poly![-8, 2, 4] * 2;
+/// assert_eq!(p, poly![-16, 4, 8]);
+/// # }
+/// ```
 impl<T> Mul for Polynomial<T>
 where
     T: Mul<Output = T> + AddAssign + Sub<Output = T>,
@@ -240,6 +346,17 @@ where
     }
 }
 
+/// Divide a [`Polynomial`] by some value.
+///
+/// The following example divides a polynomial (4x^2 + 2x - 8) by 2:
+///
+/// ```
+/// # #[macro_use] extern crate polynomials;
+/// # fn main() {
+/// let p = poly![-8, 2, 4] / 2;
+/// assert_eq!(p, poly![-4, 1, 2]);
+/// # }
+/// ```
 impl<T> Div<T> for Polynomial<T>
 where
     T: DivAssign + Copy,
@@ -283,7 +400,7 @@ where
 }
 impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 
-/// Creates a [`Polynomial`] containing the arguments as coefficients.
+/// Creates a [`Polynomial`] from a list of coefficients in ascending order.
 ///
 /// This is a wrapper around the `vec!` macro, to instantiate a polynomial from
 /// a vector of coefficients.
@@ -296,7 +413,7 @@ impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 /// ```
 /// # #[macro_use] extern crate polynomials;
 /// # fn main() {
-/// let p = poly![1, 2, 3];
+/// let p = poly![1, 2, 3]; // 3x^2 + 2x + 1
 /// assert_eq!(p[0], 1);
 /// assert_eq!(p[1], 2);
 /// assert_eq!(p[2], 3);
@@ -308,7 +425,7 @@ impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 /// ```
 /// # #[macro_use] extern crate polynomials;
 /// # fn main() {
-/// let p = poly![1; 3];
+/// let p = poly![1; 3]; // x^2 + x + 1
 /// assert_eq!(p, poly![1, 1, 1]);
 /// # }
 /// ```
@@ -343,10 +460,7 @@ mod tests {
 
     #[test]
     fn iter() {
-        assert_eq!(
-            poly![0, -9, 0, 40].iter().sum::<isize>(),
-            31
-        );
+        assert_eq!(poly![0, -9, 0, 40].iter().sum::<isize>(), 31);
     }
 
     #[test]
