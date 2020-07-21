@@ -1,3 +1,5 @@
+#![no_std]
+
 use core::cmp::PartialEq;
 use core::convert::From;
 use core::ops::Neg;
@@ -8,8 +10,9 @@ use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
 
+#[cfg_attr(test, macro_use)] 
 extern crate alloc;
-use alloc::vec::IntoIter;
+use alloc::vec::{Vec, IntoIter};
 
 #[derive(Debug, Clone)]
 pub struct Polynomial<T>(Vec<T>);
