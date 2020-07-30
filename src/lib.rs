@@ -1,5 +1,4 @@
 #![no_std]
-
 use core::cmp::PartialEq;
 use core::convert::From;
 use core::ops::Neg;
@@ -9,6 +8,7 @@ use core::ops::{Index, IndexMut};
 use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
+use serde::{Serialize, Deserialize};
 
 #[cfg_attr(test, macro_use)]
 extern crate alloc;
@@ -27,7 +27,7 @@ use alloc::vec::{IntoIter, Vec};
 /// assert_eq!(a[2], 4);
 /// # }
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Polynomial<T>(Vec<T>);
 
 impl<T> Polynomial<T> {
