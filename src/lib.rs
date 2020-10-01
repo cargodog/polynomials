@@ -237,8 +237,8 @@ where
         } else {
             rhs.0.len()
         };
-        if self.0.len() < min_len {
-            for i in self.0.len()..min_len {
+        if self.0.len() == min_len {
+            for i in min_len..rhs.0.len() {
                 self.push(-rhs[i]);
             }
         }
@@ -480,7 +480,7 @@ mod tests {
         a += b;
         assert_eq!(a, c);
 
-        let mut a = poly![1]; // low degree should be expanded
+        let mut a = poly![1]; // Low degree should be expanded
         let b = poly![0, 1];
         let c = poly![1, 1];
         a += b;
@@ -502,6 +502,12 @@ mod tests {
         let mut a = poly![-200, 6, 2, 3, 53, 0, 0]; // Higher order 0s should be ignored
         let b = poly![-1, -6, -7, 0, 1000];
         let c = poly![-199, 12, 9, 3, -947];
+        a -= b;
+        assert_eq!(a, c);
+
+        let mut a = poly![1]; // Low degree should be expanded
+        let b = poly![0, 1];
+        let c = poly![1, -1];
         a -= b;
         assert_eq!(a, c);
     }
