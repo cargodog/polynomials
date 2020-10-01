@@ -390,7 +390,7 @@ where
         if degree != other.degree() {
             return false;
         }
-        for i in 0..degree {
+        for i in 0..=degree {
             if self[i] != other[i] {
                 return false;
             }
@@ -584,5 +584,12 @@ mod tests {
         let b = poly![1, 2, 3];
         a /= 2;
         assert_eq!(a, b);
+    }
+
+    #[test]
+    fn equality() {
+        let a = poly![1, 0];
+        let b = poly![-1, 0];
+        assert!(a != b);
     }
 }
