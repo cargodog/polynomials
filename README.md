@@ -1,5 +1,5 @@
 # Polynomials
-A minimal implementation of polynomial arithmetic, that does not rely on the standard library. (i.e. can be built with #![no_std])
+A minimal implementation of polynomial arithmetic, that does not rely on the standard library. (i.e. can be built with `no_std`)
 
 # Documentation
 Detailed documentation can be found [here](https://docs.rs/polynomials).
