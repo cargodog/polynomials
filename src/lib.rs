@@ -10,6 +10,8 @@ use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
 use serde::{Serialize, Deserialize};
 
+pub mod sparse;
+
 #[cfg_attr(test, macro_use)]
 extern crate alloc;
 use alloc::vec::{IntoIter, Vec};
