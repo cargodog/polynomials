@@ -55,27 +55,33 @@ impl<T> SparsePolynomial<T> {
 
     pub fn eval(&self, x: T) -> Option<T>
     where
-        // T: Mul<Output = T> + AddAssign + ,
-        // T: Add<Output = T> + Copy + Clone,
-
         T: AddAssign + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Copy,
+        T: MulAssign + Div<Output = T> + Debug,
     {
         if self.0.len() == 0 {
             None
         } else {
             let zero: T = x - x;
-
             let mut total: T = zero;
 
             for (exponent, coefficient) in self.into_map().into_iter() {
-                let mut temp: T = x;
-                for _ in 1..exponent {
-                    temp += x * temp;
-                }
-                total += coefficient * temp;
+                total += coefficient * self.pow(x, exponent);
             }
 
             Some(total)
+        }
+    }
+
+    pub fn pow(&self, x: T, exponent: u64) -> T where T: MulAssign + Div<Output = T> + Copy {
+        if exponent == 0 {
+            x / x
+        } else {
+            let mut temp = x;
+            for _ in 1..exponent {
+                temp *= x;
+            }
+
+            temp
         }
     }
 
@@ -175,7 +181,7 @@ where
         for (k, v) in rhs_map.into_iter() {
             match poly_map.get_mut(&k) {
                 Some(value) => { *value = *value - v; }
-                None => { poly_map.insert(k, v); },
+                None => { poly_map.insert(k, -v); },
             };
         }
 
@@ -245,17 +251,12 @@ where
                 rhs[0].1 - rhs[0].1
             };
 
-            // Clear `self`
-            for i in 0..self.0.len() {
-                self.0[i].1 = zero;
-            }
-
             // Calculate product
             for (k1,v1) in poly_map.into_iter() {
                 for (k2,v2) in rhs_map.clone().into_iter() {
                     match new_map.get_mut(&(k1 + k2)) {
                         Some(value) => { *value = *value + (v1 * v2); },
-                        None => { new_map.insert(k1+k2, v1 * v2); },
+                        None => { new_map.insert(k1 + k2, v1 * v2); },
                     }
                 }
             }

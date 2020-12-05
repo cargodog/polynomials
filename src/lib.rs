@@ -633,6 +633,17 @@ mod tests {
         let a = SparsePolynomial::from(vec![(0,-1),(12,1)]);
         let b = SparsePolynomial::from(vec![(12,9),(15,1),(100,3)]);
         let c = a * b;
+        // checked on wolfram alpha
         assert_eq!(SparsePolynomial::from(vec![(12,-9),(15,-1),(24,9),(27,1),(100,-3),(112,3)]), c);
     }
+
+    #[test]
+    fn sparse_eval() {
+        let a = SparsePolynomial::from(vec![(0,-1),(12,1)]);
+        // checked on wolfram alpha
+        let mut y = a.eval(1);
+        assert_eq!(y, 0.into());
+        y = a.eval(2);
+        assert_eq!(y, 4095.into());
+    }    
 }
