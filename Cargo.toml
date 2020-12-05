@@ -9,3 +9,10 @@ repository = "https://github.com/cargodog/polynomials"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"]}
+# unused - num-traits = { version = "0.2.14", default-features = false }
+sp-std = "2.0.0"
+
+
+[features]
+default = ["std"]
+std = []

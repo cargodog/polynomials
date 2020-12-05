@@ -1,4 +1,5 @@
-#![no_std]
+#[cfg(not(feature="std"))]
+
 use core::cmp::PartialEq;
 use core::convert::From;
 use core::ops::Neg;
@@ -10,6 +11,7 @@ use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
 use serde::{Serialize, Deserialize};
 
+#[macro_use]
 pub mod sparse;
 
 #[cfg_attr(test, macro_use)]
@@ -440,6 +442,9 @@ macro_rules! poly {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use sparse::SparsePolynomial;
+
     #[test]
     fn degree() {
         assert_eq!(poly![8, 6, 2, 3].degree(), 3);
@@ -593,5 +598,33 @@ mod tests {
         let a = poly![1, 0];
         let b = poly![-1, 0];
         assert!(a != b);
+    }
+
+    #[test]
+    fn sparse_degree() {
+        assert_eq!(SparsePolynomial::from(vec![(0,8), (1,6), (100,2), (5,3)]).degree(), 100);
+        assert_eq!(SparsePolynomial::from(vec![(0,8), (5,3)]).degree(), 5);
+        assert_eq!(SparsePolynomial::from(vec![(0,8)]).degree(), 0);
+    }
+
+    #[test]
+    fn sparse_add() {
+        let mut a = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        let mut b = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        let mut c = a + b;
+        assert_eq!(SparsePolynomial::from(vec![(0,2), (1,2)]), c);
+
+        a = SparsePolynomial::from(vec![(0,-1),(1,1)]);
+        b = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        c = a + b;
+        assert_eq!(SparsePolynomial::from(vec![(1,2)]), c);
+    }
+
+    #[test]
+    fn sparse_mul() {
+        let a = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        let b = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        let c = a * b;
+        assert_eq!(SparsePolynomial::from(vec![(0,1),(1,2),(2,1)]), c);
     }
 }
