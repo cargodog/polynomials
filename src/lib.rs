@@ -644,6 +644,12 @@ mod tests {
         let mut y = a.eval(1);
         assert_eq!(y, 0.into());
         y = a.eval(2);
-        assert_eq!(y, 4095.into());
+        assert_eq!(y, 4_095.into());
+        y = a.eval(3);
+        assert_eq!(y, 531_440.into());
+        y = a.eval(4);
+        assert_eq!(y, 16_777_215.into());
+        y = a.eval(5);
+        assert_eq!(y, 244_140_624.into());
     }    
 }
