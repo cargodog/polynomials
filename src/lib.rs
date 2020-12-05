@@ -627,4 +627,12 @@ mod tests {
         let c = a * b;
         assert_eq!(SparsePolynomial::from(vec![(0,1),(1,2),(2,1)]), c);
     }
+
+    #[test]
+    fn sparse_mul_high_degree() {
+        let a = SparsePolynomial::from(vec![(0,-1),(12,1)]);
+        let b = SparsePolynomial::from(vec![(12,9),(15,1),(100,3)]);
+        let c = a * b;
+        assert_eq!(SparsePolynomial::from(vec![(12,-9),(15,-1),(24,9),(27,1),(100,-3),(112,3)]), c);
+    }
 }
