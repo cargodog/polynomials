@@ -1,11 +1,19 @@
 [package]
 name = "polynomials"
-version = "0.2.4"
-authors = ["cargodog <cargodog@protonmail.com>"]
+version = "0.2.5"
+authors = ["cargodog <cargodog@protonmail.com>", "Drew Stone <drew@commonwealth.im>"]
 edition = "2018"
 description = "Tools to perform polynomial arithmetic and evaluation."
 license-file = "LICENSE"
 repository = "https://github.com/cargodog/polynomials"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"]}
+serde = { version = "1.0", features = ["derive"], optional = true }
+sp-std = "2.0.0"
+
+[features]
+default = ["std"]
+std = [
+	"serde",
+	"sp-std/std",
+]
