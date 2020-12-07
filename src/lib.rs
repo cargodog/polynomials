@@ -11,7 +11,7 @@ use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
 
 
-#[cfg(feature="std")]
+#[cfg(feature="serde_support")]
 use serde::{Serialize, Deserialize};
 
 #[macro_use]
@@ -35,7 +35,7 @@ use alloc::vec::{IntoIter, Vec};
 /// # }
 /// ```
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde_support", derive(Serialize, Deserialize))]
 pub struct Polynomial<T>(Vec<T>);
 
 impl<T> Polynomial<T> {
