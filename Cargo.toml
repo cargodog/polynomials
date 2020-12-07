@@ -11,7 +11,6 @@ repository = "https://github.com/cargodog/polynomials"
 serde = { version = "1.0", features = ["derive"], optional = true }
 sp-std = "2.0.0"
 
-
 [features]
 default = ["std"]
 std = [
