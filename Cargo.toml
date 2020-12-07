@@ -17,5 +17,4 @@ default = ["std"]
 std = [
 	"serde",
 	"sp-std/std",
-
 ]
