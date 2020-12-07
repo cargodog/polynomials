@@ -8,11 +8,10 @@ license-file = "LICENSE"
 repository = "https://github.com/cargodog/polynomials"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"]}
-# unused - num-traits = { version = "0.2.14", default-features = false }
+serde = { version = "1.0", features = ["derive"], optional = true }
 sp-std = "2.0.0"
 
 
 [features]
 default = ["std"]
-std = []
+std = ["serde"]

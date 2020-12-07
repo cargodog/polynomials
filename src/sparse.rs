@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 use core::fmt::Debug;
 use core::cmp::PartialEq;
 use core::convert::From;
@@ -243,14 +245,6 @@ where
 
         // One of the vectors must be non-empty
         if self.0.len() > 0 || rhs.0.len() > 0 {
-            // Since core::num does not provide the `Zero()` trait
-            // this hack lets us calculate zero from any generic
-            let zero = if self.0.len() > 0 {
-                self[0].1 - self[0].1
-            } else {
-                rhs[0].1 - rhs[0].1
-            };
-
             // Calculate product
             for (k1,v1) in poly_map.into_iter() {
                 for (k2,v2) in rhs_map.clone().into_iter() {
@@ -261,10 +255,16 @@ where
                 }
             }
 
-            self.0 = new_map
-                .into_iter()
-                .filter(|elt| elt.1 != elt.1 - elt.1)
-                .collect::<Vec<_>>();
+            if self.0.len() == 0 {
+                self.0 = rhs.0;
+            } else if rhs.0.len() == 0 {
+                return;
+            } else {
+                self.0 = new_map
+                    .into_iter()
+                    .filter(|elt| elt.1 != elt.1 - elt.1)
+                    .collect::<Vec<_>>();
+            }
         }
     }
 }

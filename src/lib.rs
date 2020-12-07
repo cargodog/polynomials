@@ -1,4 +1,4 @@
-#[cfg(not(feature="std"))]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 use core::cmp::PartialEq;
 use core::convert::From;
@@ -9,6 +9,9 @@ use core::ops::{Index, IndexMut};
 use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
+
+
+#[cfg(feature="std")]
 use serde::{Serialize, Deserialize};
 
 #[macro_use]
@@ -31,7 +34,8 @@ use alloc::vec::{IntoIter, Vec};
 /// assert_eq!(a[2], 4);
 /// # }
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, )]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct Polynomial<T>(Vec<T>);
 
 impl<T> Polynomial<T> {
