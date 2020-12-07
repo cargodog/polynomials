@@ -34,7 +34,7 @@ use alloc::vec::{IntoIter, Vec};
 /// assert_eq!(a[2], 4);
 /// # }
 /// ```
-#[derive(Debug, Clone, )]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct Polynomial<T>(Vec<T>);
 
