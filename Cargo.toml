@@ -13,6 +13,9 @@ sp-std = "2.0.0"
 
 
 [features]
-default = ["std", "serde_support"]
-std = []
-serde_support = ["serde"]
+default = ["std"]
+std = [
+	"serde",
+	"sp-std/std",
+
+]

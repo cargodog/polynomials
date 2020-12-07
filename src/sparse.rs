@@ -13,11 +13,9 @@ use core::slice::SliceIndex;
 use alloc::vec::{IntoIter, Vec};
 use sp_std::collections::btree_map::{BTreeMap};
 
-#[cfg(feature="serde_support")]
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde_support", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SparsePolynomial<T>(Vec<(u64,T)>);
 
 impl<T> SparsePolynomial<T> {
