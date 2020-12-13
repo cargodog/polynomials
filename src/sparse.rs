@@ -61,7 +61,7 @@ impl<T> SparsePolynomial<T> {
     pub fn eval(&self, x: T) -> Option<T>
     where
         T: AddAssign + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Copy,
-        T: MulAssign + Div<Output = T> + Debug,
+        T: MulAssign + Debug,
     {
         if self.0.len() == 0 {
             None
@@ -70,24 +70,24 @@ impl<T> SparsePolynomial<T> {
             let mut total: T = zero;
 
             for (exponent, coefficient) in self.into_map().into_iter() {
-                total += coefficient * self.pow(x, exponent);
+                if exponent == 0 {
+                    total += coefficient
+                } else {
+                    total += coefficient * self.pow(x, exponent);
+                }
             }
 
             Some(total)
         }
     }
 
-    pub fn pow(&self, x: T, exponent: u64) -> T where T: MulAssign + Div<Output = T> + Copy {
-        if exponent == 0 {
-            x / x
-        } else {
-            let mut temp = x;
-            for _ in 1..exponent {
-                temp *= x;
-            }
-
-            temp
+    pub fn pow(&self, x: T, exponent: u64) -> T where T: MulAssign + Copy {
+        let mut temp = x;
+        for _ in 1..exponent {
+            temp *= x;
         }
+
+        temp
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &(u64,T)> {
