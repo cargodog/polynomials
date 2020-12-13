@@ -1,5 +1,3 @@
-#![cfg_attr(not(feature = "std"), no_std)]
-
 use core::fmt::Debug;
 use core::cmp::PartialEq;
 use core::convert::From;
