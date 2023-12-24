@@ -11,7 +11,7 @@ use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[macro_use]
 pub mod sparse;
@@ -406,25 +406,32 @@ where
 }
 
 impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
-impl<T> Display for Polynomial<T> where T: Display+Copy+Sub<T, Output = T> + Eq+num::Num+num::Signed{
+impl<T> Display for Polynomial<T>
+where
+    T: Display + Copy + Sub<T, Output = T> + Eq + num::Num + num::Signed,
+{
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        let degree=self.degree();
-        let mut formatted_equation=String::new();
-        for (i,coefficient) in self.0.iter().enumerate(){
-            if coefficient.is_zero(){
+        let degree = self.degree();
+        let mut formatted_equation = String::new();
+        for (i, coefficient) in self.0.iter().enumerate() {
+            let power = degree - i;
+            if coefficient.is_zero() {
                 continue;
             }
-            if !coefficient.is_one()||degree-i==0{
-                formatted_equation+=&coefficient.to_string();
+            if i != 0 && coefficient.is_positive() {
+                formatted_equation += "+"
             }
-            if degree-i!=0{
-                formatted_equation+=&format!("x^{}",degree-i);
+            if !coefficient.is_one() || power == 0 {
+                formatted_equation += &coefficient.to_string();
             }
-            if i<degree&&coefficient.is_positive(){
-                formatted_equation+="+"
+            if power != 0 {
+                formatted_equation += "x";
+                if power != 1 {
+                    formatted_equation += &format!("^{}", power);
+                }
             }
         }
-        write!(f,"{}",formatted_equation)
+        write!(f, "{}", formatted_equation)
     }
 }
 /// Creates a [`Polynomial`] from a list of coefficients in ascending order.
@@ -623,52 +630,65 @@ mod tests {
         assert!(a != b);
     }
     #[test]
-    fn polynomial_display(){
-        let mut a=poly![1,4,5];
-        assert_eq!(format!("{}",a),"x^2+4x^1+5");
-        a=poly![1,0,5];
-        assert_eq!(format!("{}",a),"x^2+5");
+    fn polynomial_display() {
+        let mut a = poly![1, 4, 5];
+        assert_eq!(format!("{}", a), "x^2+4x+5");
+        a = poly![1, 0, 5];
+        assert_eq!(format!("{}", a), "x^2+5");
     }
     #[test]
     fn sparse_degree() {
-        assert_eq!(SparsePolynomial::from(vec![(0,8), (1,6), (100,2), (5,3)]).degree(), 100);
-        assert_eq!(SparsePolynomial::from(vec![(0,8), (5,3)]).degree(), 5);
-        assert_eq!(SparsePolynomial::from(vec![(0,8)]).degree(), 0);
+        assert_eq!(
+            SparsePolynomial::from(vec![(0, 8), (1, 6), (100, 2), (5, 3)]).degree(),
+            100
+        );
+        assert_eq!(SparsePolynomial::from(vec![(0, 8), (5, 3)]).degree(), 5);
+        assert_eq!(SparsePolynomial::from(vec![(0, 8)]).degree(), 0);
     }
 
     #[test]
     fn sparse_add() {
-        let mut a = SparsePolynomial::from(vec![(0,1),(1,1)]);
-        let mut b = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        let mut a = SparsePolynomial::from(vec![(0, 1), (1, 1)]);
+        let mut b = SparsePolynomial::from(vec![(0, 1), (1, 1)]);
         let mut c = a + b;
-        assert_eq!(SparsePolynomial::from(vec![(0,2), (1,2)]), c);
+        assert_eq!(SparsePolynomial::from(vec![(0, 2), (1, 2)]), c);
 
-        a = SparsePolynomial::from(vec![(0,-1),(1,1)]);
-        b = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        a = SparsePolynomial::from(vec![(0, -1), (1, 1)]);
+        b = SparsePolynomial::from(vec![(0, 1), (1, 1)]);
         c = a + b;
-        assert_eq!(SparsePolynomial::from(vec![(1,2)]), c);
+        assert_eq!(SparsePolynomial::from(vec![(1, 2)]), c);
     }
 
     #[test]
     fn sparse_mul() {
-        let a = SparsePolynomial::from(vec![(0,1),(1,1)]);
-        let b = SparsePolynomial::from(vec![(0,1),(1,1)]);
+        let a = SparsePolynomial::from(vec![(0, 1), (1, 1)]);
+        let b = SparsePolynomial::from(vec![(0, 1), (1, 1)]);
         let c = a * b;
-        assert_eq!(SparsePolynomial::from(vec![(0,1),(1,2),(2,1)]), c);
+        assert_eq!(SparsePolynomial::from(vec![(0, 1), (1, 2), (2, 1)]), c);
     }
 
     #[test]
     fn sparse_mul_high_degree() {
-        let a = SparsePolynomial::from(vec![(0,-1),(12,1)]);
-        let b = SparsePolynomial::from(vec![(12,9),(15,1),(100,3)]);
+        let a = SparsePolynomial::from(vec![(0, -1), (12, 1)]);
+        let b = SparsePolynomial::from(vec![(12, 9), (15, 1), (100, 3)]);
         let c = a * b;
         // checked on wolfram alpha
-        assert_eq!(SparsePolynomial::from(vec![(12,-9),(15,-1),(24,9),(27,1),(100,-3),(112,3)]), c);
+        assert_eq!(
+            SparsePolynomial::from(vec![
+                (12, -9),
+                (15, -1),
+                (24, 9),
+                (27, 1),
+                (100, -3),
+                (112, 3)
+            ]),
+            c
+        );
     }
 
     #[test]
     fn sparse_eval() {
-        let a = SparsePolynomial::from(vec![(0,-1),(12,1)]);
+        let a = SparsePolynomial::from(vec![(0, -1), (12, 1)]);
         // checked on wolfram alpha
         let mut y = a.eval(1);
         assert_eq!(y, 0.into());
@@ -680,5 +700,12 @@ mod tests {
         assert_eq!(y, 16_777_215.into());
         y = a.eval(5);
         assert_eq!(y, 244_140_624.into());
-    }    
+    }
+    #[test]
+    fn sparse_display() {
+        let mut a = SparsePolynomial::from(vec![(0, -1), (12, 1)]);
+        assert_eq!(format!("{}", a), "x^12-1");
+        a = SparsePolynomial::from(vec![(12, 9), (15, 1), (100, 3), (0, 50)]);
+        assert_eq!(format!("{}", a), "3x^100+x^15+9x^12+50");
+    }
 }

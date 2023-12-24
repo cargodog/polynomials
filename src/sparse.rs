@@ -1,8 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use core::fmt::Debug;
+use alloc::vec::{IntoIter, Vec};
 use core::cmp::PartialEq;
 use core::convert::From;
+use core::fmt::{Debug, Display};
 use core::ops::Neg;
 use core::ops::{Add, AddAssign};
 use core::ops::{Div, DivAssign};
@@ -10,36 +11,42 @@ use core::ops::{Index, IndexMut};
 use core::ops::{Mul, MulAssign};
 use core::ops::{Sub, SubAssign};
 use core::slice::SliceIndex;
-use alloc::vec::{IntoIter, Vec};
-use sp_std::collections::btree_map::{BTreeMap};
+use sp_std::collections::btree_map::BTreeMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SparsePolynomial<T>(Vec<(u64,T)>);
+pub struct SparsePolynomial<T>(Vec<(u64, T)>);
 
 impl<T> SparsePolynomial<T> {
     pub fn new() -> SparsePolynomial<T> {
-        SparsePolynomial(Vec::<(u64,T)>::new())
+        SparsePolynomial(Vec::<(u64, T)>::new())
     }
 
-    pub fn into_map(&self) -> BTreeMap<u64,T> where T: Add<Output = T> + Clone {
-        let mut map: BTreeMap<u64,T> = BTreeMap::new();
+    pub fn into_map(&self) -> BTreeMap<u64, T>
+    where
+        T: Add<Output = T> + Clone,
+    {
+        let mut map: BTreeMap<u64, T> = BTreeMap::new();
         for i in 0..self.0.len() {
             match map.get_mut(&self[i].0) {
-                Some(value) => { *value = value.clone() + self[i].1.clone(); },
-                None => { map.insert(self[i].0, self[i].1.clone()); },
+                Some(value) => {
+                    *value = value.clone() + self[i].1.clone();
+                }
+                None => {
+                    map.insert(self[i].0, self[i].1.clone());
+                }
             };
         }
 
         map
     }
 
-    pub fn push(&mut self, value: (u64,T)) {
+    pub fn push(&mut self, value: (u64, T)) {
         self.0.push(value);
     }
 
-    pub fn pop(&mut self) -> Option<(u64,T)> {
+    pub fn pop(&mut self) -> Option<(u64, T)> {
         self.0.pop()
     }
 
@@ -75,7 +82,10 @@ impl<T> SparsePolynomial<T> {
         }
     }
 
-    pub fn pow(&self, x: T, exponent: u64) -> T where T: MulAssign + Div<Output = T> + Copy {
+    pub fn pow(&self, x: T, exponent: u64) -> T
+    where
+        T: MulAssign + Div<Output = T> + Copy,
+    {
         if exponent == 0 {
             x / x
         } else {
@@ -88,28 +98,28 @@ impl<T> SparsePolynomial<T> {
         }
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &(u64,T)> {
+    pub fn iter(&self) -> impl Iterator<Item = &(u64, T)> {
         self.0.iter()
     }
 
-    pub fn into_iter(self) -> impl IntoIterator<Item = (u64,T), IntoIter = IntoIter<(u64,T)>> {
+    pub fn into_iter(self) -> impl IntoIterator<Item = (u64, T), IntoIter = IntoIter<(u64, T)>> {
         self.0.into_iter()
     }
 }
 
-impl<T> From<Vec<(u64,T)>> for SparsePolynomial<T> {
-    fn from(v: Vec<(u64,T)>) -> Self {
+impl<T> From<Vec<(u64, T)>> for SparsePolynomial<T> {
+    fn from(v: Vec<(u64, T)>) -> Self {
         SparsePolynomial(v)
     }
 }
 
-impl<T> Into<Vec<(u64,T)>> for SparsePolynomial<T> {
-    fn into(self) -> Vec<(u64,T)> {
+impl<T> Into<Vec<(u64, T)>> for SparsePolynomial<T> {
+    fn into(self) -> Vec<(u64, T)> {
         self.0
     }
 }
 
-impl<T, I: SliceIndex<[(u64,T)]> + SliceIndex<[(u64, T)]>> Index<I> for SparsePolynomial<T> {
+impl<T, I: SliceIndex<[(u64, T)]> + SliceIndex<[(u64, T)]>> Index<I> for SparsePolynomial<T> {
     type Output = I::Output;
 
     fn index(&self, index: I) -> &Self::Output {
@@ -117,7 +127,9 @@ impl<T, I: SliceIndex<[(u64,T)]> + SliceIndex<[(u64, T)]>> Index<I> for SparsePo
     }
 }
 
-impl<T, I: SliceIndex<[(u64,T)]> + SliceIndex<[(u64, T)]> + SliceIndex<[(u64, T)]>> IndexMut<I> for SparsePolynomial<T> {
+impl<T, I: SliceIndex<[(u64, T)]> + SliceIndex<[(u64, T)]> + SliceIndex<[(u64, T)]>> IndexMut<I>
+    for SparsePolynomial<T>
+{
     fn index_mut(&mut self, index: I) -> &mut Self::Output {
         &mut self.0[index]
     }
@@ -146,8 +158,12 @@ where
 
         for (k, v) in rhs_map.into_iter() {
             match poly_map.get_mut(&k) {
-                Some(value) => { *value = *value + v; },
-                None => { poly_map.insert(k, v); },
+                Some(value) => {
+                    *value = *value + v;
+                }
+                None => {
+                    poly_map.insert(k, v);
+                }
             };
         }
 
@@ -183,8 +199,12 @@ where
 
         for (k, v) in rhs_map.into_iter() {
             match poly_map.get_mut(&k) {
-                Some(value) => { *value = *value - v; }
-                None => { poly_map.insert(k, -v); },
+                Some(value) => {
+                    *value = *value - v;
+                }
+                None => {
+                    poly_map.insert(k, -v);
+                }
             };
         }
 
@@ -223,7 +243,7 @@ impl<T> Mul for SparsePolynomial<T>
 where
     T: Mul<Output = T> + AddAssign + Sub<Output = T>,
     T: Copy + Clone,
-    Self: MulAssign
+    Self: MulAssign,
 {
     type Output = Self;
 
@@ -247,11 +267,15 @@ where
         // One of the vectors must be non-empty
         if self.0.len() > 0 || rhs.0.len() > 0 {
             // Calculate product
-            for (k1,v1) in poly_map.into_iter() {
-                for (k2,v2) in rhs_map.clone().into_iter() {
+            for (k1, v1) in poly_map.into_iter() {
+                for (k2, v2) in rhs_map.clone().into_iter() {
                     match new_map.get_mut(&(k1 + k2)) {
-                        Some(value) => { *value = *value + (v1 * v2); },
-                        None => { new_map.insert(k1 + k2, v1 * v2); },
+                        Some(value) => {
+                            *value = *value + (v1 * v2);
+                        }
+                        None => {
+                            new_map.insert(k1 + k2, v1 * v2);
+                        }
                     }
                 }
             }
@@ -308,7 +332,7 @@ where
             let (lk, lv) = l;
             let (rk, rv) = r;
             if lk != rk || lv != rv {
-                return false
+                return false;
             }
         }
         true
@@ -316,6 +340,34 @@ where
 }
 impl<T> Eq for SparsePolynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 
+impl<T> Display for SparsePolynomial<T>
+where
+    T: Display + num::Num + num::Signed + Copy,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let mut sorted = self.0.clone();
+        sorted.sort_by(|a, b| b.0.cmp(&a.0));
+        let mut formatted_polynomial = String::new();
+        for (i, coefficient) in sorted.iter().enumerate() {
+            if coefficient.1.is_zero() {
+                continue;
+            }
+            if i != 0 && coefficient.1.is_positive() {
+                formatted_polynomial += "+"
+            }
+            if !coefficient.1.is_one() || coefficient.0 == 0 {
+                formatted_polynomial += &coefficient.1.to_string();
+            }
+            if coefficient.0 != 0 {
+                formatted_polynomial += "x";
+                if coefficient.0 != 1 {
+                    formatted_polynomial += &format!("^{}", coefficient.0);
+                }
+            }
+        }
+        write!(f, "{}", formatted_polynomial)
+    }
+}
 #[macro_export]
 macro_rules! sparse_poly {
     ($($args:tt)*) => (
