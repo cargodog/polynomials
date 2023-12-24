@@ -2,6 +2,7 @@
 
 use core::cmp::PartialEq;
 use core::convert::From;
+use core::fmt::Display;
 use core::ops::Neg;
 use core::ops::{Add, AddAssign};
 use core::ops::{Div, DivAssign};
@@ -403,8 +404,29 @@ where
         true
     }
 }
-impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
 
+impl<T> Eq for Polynomial<T> where T: Sub<T, Output = T> + Eq + Copy {}
+impl<T> Display for Polynomial<T> where T: Display+Copy+Sub<T, Output = T> + Eq+num::Num+num::Signed{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let degree=self.degree();
+        let mut formatted_equation=String::new();
+        for (i,coefficient) in self.0.iter().enumerate(){
+            if coefficient.is_zero(){
+                continue;
+            }
+            if !coefficient.is_one()||degree-i==0{
+                formatted_equation+=&coefficient.to_string();
+            }
+            if degree-i!=0{
+                formatted_equation+=&format!("x^{}",degree-i);
+            }
+            if i<degree&&coefficient.is_positive(){
+                formatted_equation+="+"
+            }
+        }
+        write!(f,"{}",formatted_equation)
+    }
+}
 /// Creates a [`Polynomial`] from a list of coefficients in ascending order.
 ///
 /// This is a wrapper around the `vec!` macro, to instantiate a polynomial from
@@ -600,7 +622,13 @@ mod tests {
         let b = poly![-1, 0];
         assert!(a != b);
     }
-
+    #[test]
+    fn polynomial_display(){
+        let mut a=poly![1,4,5];
+        assert_eq!(format!("{}",a),"x^2+4x^1+5");
+        a=poly![1,0,5];
+        assert_eq!(format!("{}",a),"x^2+5");
+    }
     #[test]
     fn sparse_degree() {
         assert_eq!(SparsePolynomial::from(vec![(0,8), (1,6), (100,2), (5,3)]).degree(), 100);
